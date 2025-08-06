@@ -241,6 +241,7 @@ _abbreviations = {
             # Hindi doesn't typically use abbreviations in the same way as Latin-based scripts.
         ]
     ],
+    "vi": [],  # Vietnamese doesn't use abbreviations like English
 }
 
 
@@ -449,6 +450,18 @@ _symbols_multilingual = {
             ("°", " डिग्री "),
         ]
     ],
+    "vi": [
+        (re.compile(rf"{re.escape(x[0])}", re.IGNORECASE), x[1])
+        for x in [
+            ("&", " và "),
+            ("@", " ở "),
+            ("%", " phần trăm "),
+            ("#", " số "),
+            ("$", " đô la "),
+            ("£", " bảng "),
+            ("°", " độ "),
+        ]
+    ],
 }
 
 
@@ -475,6 +488,7 @@ _ordinal_re = {
     "hu": re.compile(r"([0-9]+)(\.|adik|edik|odik|edik|ödik|ödike|ik)"),
     "ko": re.compile(r"([0-9]+)(번째|번|차|째)"),
     "hi": re.compile(r"([0-9]+)(st|nd|rd|th)"),  # To check
+    "vi": re.compile(r"([0-9]+)(st|nd|rd|th)"),  # To check
 }
 _number_re = re.compile(r"[0-9]+")
 _currency_re = {
@@ -527,6 +541,7 @@ def _expand_currency(m, lang="en", currency="USD"):
         "hu": ", ",
         "ko": ", ",
         "hi": ", ",
+        "vi": ", ",
     }
 
     if amount.is_integer():
@@ -632,6 +647,7 @@ class VoiceBpeTokenizer:
             "hu": 224,
             "ko": 95,
             "hi": 150,
+            "vi": 250,
         }
 
     @cached_property
@@ -659,6 +675,8 @@ class VoiceBpeTokenizer:
                 txt = korean_transliterate(txt)
         elif lang == "ja":
             txt = japanese_cleaners(txt, self.katsu)
+        elif lang == "vi":
+            txt =  multilingual_cleaners(txt, lang)
         else:
             raise NotImplementedError(f"Language '{lang}' is not supported.")
         return txt
